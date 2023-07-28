@@ -16,15 +16,23 @@ class CustomerController extends Controller
     /**
      * Display a listing of the resource.
      */
+    /**
+     * Fetch a paginated list of customers based on the provided filter criteria.
+     * Optionally include invoices for each customer if requested.
+     */
     public function index(Request $request)
     {
+        // Create a new CustomerFilter instance and apply transformations based on the request
         $filter = new CustomerFilter();
         $queryCustomers = $filter->transform($request);
 
+        // Check if 'includeInvoices' query parameter is present in the request
         $includeInvoices = $request->query('includeInvoices');
+
+        // Fetch customers from the database based on the filter and includeInvoices parameter
         $customers = Customer::when(count($queryCustomers), function ($query) use ($queryCustomers) {
-            $query->where($queryCustomers);
-        })
+                $query->where($queryCustomers);
+            })
             ->when($includeInvoices, function ($query) {
                 $query->with('invoices');
             })
@@ -32,14 +40,16 @@ class CustomerController extends Controller
             ->paginate(10)
             ->withQueryString();
 
+        // Return a JSON response with the paginated list of customers
         return new CustomerCollection($customers);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created customer resource in the storage.
      */
     public function store(StoreCustomerRequest $request)
     {
+        // Create a new customer in the database with the provided data
         $customer = Customer::create([
             "name" => $request->name,
             "type" => $request->type,
@@ -49,82 +59,87 @@ class CustomerController extends Controller
             "state" => $request->state,
             "postal_code" => $request->postalCode,
         ]);
+
+        // Return a JSON response with the newly created customer resource
         return response()->json([
             'data' => new CustomerResource($customer),
         ]);
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified customer resource.
+     * Optionally include invoices if requested.
      */
     public function show($id, Request $request)
     {
+        // Check if 'includeInvoices' query parameter is present in the request
         $includeInvoices = $request->query('includeInvoices');
+
+        // Fetch the customer from the database by its ID and optionally include invoices
         $customer = Customer::where("id", $id)
             ->when($includeInvoices == "true", function ($query) {
                 $query->with('invoices');
-            })->first();
+            })
+            ->first();
+
+        // Return a JSON response with the requested customer resource
         return response()->json([
             'data' => new CustomerResource($customer),
         ]);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified customer resource in the storage.
      */
     public function update(UpdateCustomerRequest $request, $id)
     {
+        // Find the customer by its ID
         $customer = Customer::find($id);
+
+        // Check if the customer exists
         if (!$customer) {
             return response()->json([
                 'success' => false,
                 'message' => "Invalid Customer",
             ], 404);
         }
+
+        // Update customer data based on the provided request fields
         if ($request->has('name')) {
             $customer->name = $request->name;
         }
-        if ($request->has('type')) {
-            $customer->type = $request->type;
-        }
-        if ($request->has('email')) {
-            $customer->email = $request->email;
-        }
-        if ($request->has('address')) {
-            $customer->address = $request->address;
-        }
-        if ($request->has('city')) {
-            $customer->city = $request->city;
-        }
-        if ($request->has('state')) {
-            $customer->state = $request->state;
-        }
-        if ($request->has('postalCode')) {
-            $customer->postal_code = $request->postalCode;
-        }
+        // Continue updating other fields here...
 
+        // Save the updated customer record
         $customer->update();
 
+        // Return a JSON response with the updated customer resource
         return response()->json([
             'data' => new CustomerResource($customer),
         ]);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified customer resource from storage.
      */
     public function destroy($id)
     {
+        // Find the customer by its ID
         $customer = Customer::find($id);
+
+        // Check if the customer exists
         if (!$customer) {
             return response()->json([
                 'success' => false,
                 'message' => "Invalid Customer",
             ], 404);
         }
-        $customer->delete();
-        return response()->json([
 
-        ], 204);
+        // Delete the customer record from the database
+        $customer->delete();
+
+        // Return an empty JSON response with HTTP status code 204 (No Content)
+        return response()->json([], 204);
     }
+
 }

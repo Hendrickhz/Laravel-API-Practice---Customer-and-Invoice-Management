@@ -14,6 +14,7 @@ class CustomerResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        // Return an array with the selected attributes of the Customer model
         return [
             "id"=>$this->id,
             "name"=>$this->name,

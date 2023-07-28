@@ -22,6 +22,7 @@ class UpdateCustomerRequest extends FormRequest
      */
     public function rules(): array
     {
+        // Define the validation rules for each attribute in the request array
         return [
             "name" => "nullable|string|max:255",
             'type' => 'nullable|string|in:B,I',

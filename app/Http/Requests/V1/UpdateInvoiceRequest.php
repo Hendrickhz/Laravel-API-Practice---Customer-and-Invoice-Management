@@ -11,7 +11,7 @@ class UpdateInvoiceRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,8 +21,13 @@ class UpdateInvoiceRequest extends FormRequest
      */
     public function rules(): array
     {
+        // Define the validation rules for each attribute in the request array
         return [
-            //
+            "customerId"=>"nullable|exists:customers,id",
+            'billedDate' => 'nullable|date',
+            'amount' => 'nullable|integer|min:10',
+            'paidDate' => 'nullable|date',
+            'status' => 'nullable|string|in:P,B, V',
         ];
     }
 }

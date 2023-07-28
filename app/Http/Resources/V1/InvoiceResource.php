@@ -14,6 +14,7 @@ class InvoiceResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        // Return an array with the selected attributes of the Invoice model
         return [
             "id"=>$this->id,
             "customerId"=>$this->customer_id,
