@@ -1,4 +1,4 @@
-# Laravel-API-Practice---Customer-and-Invoice-Management
+# Laravel API Practice Customer and Invoice Management
 
 Description
 This repository contains a Laravel API practice project that enables users to manage customers and invoices, along with user authentication using Laravel Sanctum for API token-based security.
